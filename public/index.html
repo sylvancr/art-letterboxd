@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Salon · Your life in art</title>
+  <meta name="description" content="Log, rate and review the artworks on display at the world's great museums.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 10'%3E%3Ccircle cx='5' cy='5' r='4.5' fill='%23ff8c42'/%3E%3Ccircle cx='15' cy='5' r='4.5' fill='%2300c06b'/%3E%3Ccircle cx='25' cy='5' r='4.5' fill='%2340b4f0'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a href="/" class="logo" aria-label="Salon home">
+        <span class="dots"><i></i><i></i><i></i></span><span class="wordmark">salon</span>
+      </a>
+      <button class="nav-toggle" data-action="toggle-nav" aria-label="Menu">☰</button>
+      <nav class="main-nav" id="nav"></nav>
+    </div>
+  </header>
+  <main id="main" class="wrap"></main>
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>Artwork data and images courtesy of The Metropolitan Museum of Art, the Art Institute of Chicago,
+        the Cleveland Museum of Art and the Victoria and Albert Museum open access programmes.
+        Only works the museums list as currently on view are shown.</p>
+    </div>
+  </footer>
+  <div id="modal-root"></div>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>

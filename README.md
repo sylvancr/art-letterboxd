@@ -1,1 +1,56 @@
-# art-letterboxd
+# Salon
+
+Letterboxd for art. Log, rate and review the artworks **currently on display** at major museums, keep a diary of
+what you've seen, build a want-to-see list for your next visit, make lists, and follow friends.
+
+## Museums
+
+The catalog comes from open-access APIs that need no key. Each importer asks only for works the museum lists as on view.
+
+| Museum | API | "On view" filter |
+| --- | --- | --- |
+| The Metropolitan Museum of Art | `collectionapi.metmuseum.org` (v1.1 search + objects) | `isOnView=true` |
+| Art Institute of Chicago | `api.artic.edu` | `is_on_view: true` |
+| Cleveland Museum of Art | `openaccess-api.clevelandart.org` | `currently_on_view=1` |
+| Victoria and Albert Museum | `api.vam.ac.uk/v2` | `on_display_at=southken` |
+
+Each museum's highlights are imported first. To add another museum, write an adapter in
+`server/museums/` that exports `fetchOnView({ limit })` and `enrich(sourceId)`, then register it in
+`server/museums/index.js`.
+
+## Running it
+
+Requires Node 22.5+, which provides the built-in `node:sqlite` module. Express is the only dependency.
+
+```sh
+npm install
+npm run sync              # pulls 400 on-view works per museum into data/salon.db
+npm run seed:demo         # optional: 5 demo members with diary entries and reviews
+npm start                 # http://localhost:3000
+```
+
+`npm run sync -- --limit 1000 met aic` syncs specific museums with a larger cap. Add `--prune` to mark works that
+are no longer returned as off view. Run sync on a schedule (for example, nightly cron) to follow gallery rotations.
+
+`npm test` runs the API tests against an in-memory database.
+
+## Features
+
+- **Artwork pages**: large image, gallery location, museum details, Seen / Like / Want to see toggles, half-star ratings,
+  ratings histogram, popular and recent reviews, activity from friends, and more works by the same artist.
+- **Diary and reviews**: log a visit with a date, a rating, a like, an "I've seen this before" flag and an optional review.
+- **Profiles**: four favourite artworks, recent activity, diary, reviews, seen, want to see, likes, lists, followers.
+- **Social**: follow members, like reviews, and view the activity feed for everyone or only people you follow.
+- **Lists**: ordered collections of artworks, such as a route through one museum.
+- **Browse and search**: filter by museum, type and century; sort by popularity, rating, recent reviews or date;
+  full-text search across titles, artists, media and cultures.
+
+## Layout
+
+```
+server/        Express API, SQLite schema, session auth (scrypt + HttpOnly cookie)
+server/museums Museum importers
+scripts/       sync.js, seed-demo.js
+public/        No-build frontend: plain ES modules and CSS
+test/          node:test API tests
+```
