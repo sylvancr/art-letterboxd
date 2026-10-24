@@ -17,7 +17,14 @@ export class ApiError extends Error {
   constructor(status, message) { super(message); this.status = status; }
 }
 
+// On GitHub Pages the API runs inside the page (static/backend.js) instead of on a server.
 export async function api(path, { method = 'GET', body } = {}) {
+  if (window.salonLocal) {
+    const request = await window.salonLocal;
+    const res = await request(method, `/api${path}`, body);
+    if (res.status >= 400) throw new ApiError(res.status, res.data?.error || `Request failed (${res.status})`);
+    return res.data;
+  }
   const res = await fetch(`/api${path}`, {
     method,
     headers: body !== undefined || method !== 'GET' ? { 'Content-Type': 'application/json' } : {},
@@ -39,6 +46,21 @@ export function setUser(user) {
 
 // ---------- routing ----------
 
+// The site may be served from a sub-path (e.g. /art-letterboxd/ on GitHub Pages), set by <base href>.
+// App code always deals in root-relative paths like "/art"; these helpers add and strip the prefix.
+export const BASE = new URL(document.baseURI).pathname.replace(/\/$/, '');
+export const appPath = (pathname = location.pathname) =>
+  (BASE && pathname.startsWith(BASE) ? pathname.slice(BASE.length) : pathname) || '/';
+
+function prefixLinks(root) {
+  if (!BASE || root.nodeType !== 1) return;
+  const links = root.matches('a[href^="/"]') ? [root] : root.querySelectorAll('a[href^="/"]');
+  for (const a of links) {
+    const href = a.getAttribute('href');
+    if (!href.startsWith(`${BASE}/`) && href !== BASE) a.setAttribute('href', BASE + href);
+  }
+}
+
 const routes = [];
 export function route(pattern, view) {
   const keys = [];
@@ -48,8 +70,8 @@ export function route(pattern, view) {
 
 let renderToken = 0;
 export async function navigate(url, { replace = false, scroll = true } = {}) {
-  if (url !== location.pathname + location.search) {
-    history[replace ? 'replaceState' : 'pushState']({}, '', url);
+  if (url !== appPath() + location.search) {
+    history[replace ? 'replaceState' : 'pushState']({}, '', BASE + url);
   }
   await renderRoute(scroll);
 }
@@ -57,7 +79,7 @@ export async function navigate(url, { replace = false, scroll = true } = {}) {
 export async function renderRoute(scroll = true) {
   const token = ++renderToken;
   const main = document.getElementById('main');
-  const path = decodeURIComponent(location.pathname);
+  const path = decodeURIComponent(appPath());
   const query = Object.fromEntries(new URLSearchParams(location.search));
   closeModal();
   document.getElementById('nav')?.classList.remove('open');
@@ -106,7 +128,7 @@ export function initActions() {
     const a = e.target.closest('a[href]');
     if (a && a.origin === location.origin && !a.target && !e.metaKey && !e.ctrlKey && !e.shiftKey && e.button === 0) {
       e.preventDefault();
-      navigate(a.pathname + a.search);
+      navigate(appPath(a.pathname) + a.search);
     }
   });
   document.addEventListener('submit', e => {
@@ -128,6 +150,11 @@ export function initActions() {
     if (e.target.tagName === 'IMG') e.target.classList.add('broken');
   }, true);
   window.addEventListener('popstate', () => renderRoute(false));
+  if (BASE) {
+    prefixLinks(document.body);
+    new MutationObserver(records => records.forEach(r => r.addedNodes.forEach(prefixLinks)))
+      .observe(document.body, { childList: true, subtree: true });
+  }
 }
 
 // ---------- modal & toast ----------
