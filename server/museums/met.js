@@ -49,9 +49,12 @@ export async function fetchOnView({ limit = 500, log = () => {} } = {}) {
   const seen = new Set();
   const ids = [...highlights, ...rest].filter(id => !seen.has(id) && seen.add(id)).slice(0, Math.ceil(limit * 1.4));
   log(`met: fetching ${ids.length} object records`);
-  const objects = await mapLimit(ids, 8, async id => {
-    try { return await getJson(`${API}/v1/objects/${id}`); } catch { return null; }
+  // The Met throttles bursts hard (especially from cloud IPs), so go gently and retry generously.
+  let failed = 0;
+  const objects = await mapLimit(ids, 3, async id => {
+    try { return await getJson(`${API}/v1/objects/${id}`, { retries: 6 }); } catch { failed++; return null; }
   });
+  if (failed) log(`met: ${failed} object records could not be fetched`);
   return objects.map((o, i) => normalize(o, i)).filter(Boolean).slice(0, limit);
 }
 
