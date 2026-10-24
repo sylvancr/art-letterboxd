@@ -459,3 +459,6 @@ label.check input { accent-color: var(--green); width: 16px; height: 16px; }
   .stat-row { gap: 14px; }
   .profile-tabs { justify-content: flex-start; }
 }
+
+.proto-banner { background: #2c3440; color: #bcd; font-size: 12px; text-align: center; padding: 6px 16px; }
+.proto-banner a { color: #fff; text-decoration: underline; }

@@ -1,5 +1,7 @@
 # Salon
 
+**Try the prototype: https://sylvancr.github.io/art-letterboxd/**
+
 Letterboxd for art. Log, rate and review the artworks **currently on display** at major museums, keep a diary of
 what you've seen, build a want-to-see list for your next visit, make lists, and follow friends.
 
@@ -34,6 +36,23 @@ are no longer returned as off view. Run sync on a schedule (for example, nightly
 
 `npm test` runs the API tests against an in-memory database.
 
+## The link-only prototype (GitHub Pages)
+
+GitHub Pages can't run a server, so the prototype runs the same API (`server/app.js`) inside the browser on
+SQLite WebAssembly. Each deploy ships a snapshot of the catalog, plus the demo members, so the site
+works from a plain link. Accounts, ratings and reviews are saved in the visitor's own browser (IndexedDB), so they
+aren't shared between people and are reset when a new version is deployed. For a shared, multi-user site, run the
+Node server.
+
+Every push to `main` deploys the prototype through `.github/workflows/pages.yml`. To build it locally:
+
+```sh
+npm run sync && npm run seed:demo
+npm run build:static -- --base /art-letterboxd/   # writes dist/
+```
+
+The browser shims for Express, `node:sqlite` and `node:crypto` are in `static/`.
+
 ## Features
 
 - **Artwork pages**: large image, gallery location, museum details, Seen / Like / Want to see toggles, half-star ratings,
@@ -52,5 +71,10 @@ server/        Express API, SQLite schema, session auth (scrypt + HttpOnly cooki
 server/museums Museum importers
 scripts/       sync.js, seed-demo.js
 public/        No-build frontend: plain ES modules and CSS
+static/        Browser shims and entry point for the GitHub Pages prototype
 test/          node:test API tests
 ```
+
+## Licence
+
+[MIT](LICENSE)

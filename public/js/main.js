@@ -1,6 +1,6 @@
 import {
   html, api, session, setUser, navigate, renderRoute, initActions, onAction, toast, closeModal,
-  currentQuery, withQuery,
+  currentQuery, withQuery, appPath,
 } from './core.js';
 import { posterGrid, bindStarInputs, userUrl, artUrl } from './components.js';
 import { editorItem, favSlot } from './views.js';
@@ -10,7 +10,7 @@ import { openAuth, submitAuth, openLog, submitLog, openAddToList, openPicker, bi
 
 function renderNav() {
   const u = session.user;
-  const path = location.pathname;
+  const path = appPath();
   const link = (href, label) => html`<a href="${href}" class="${path === href || (href !== '/' && path.startsWith(href)) ? 'active' : ''}">${label}</a>`;
   document.getElementById('nav').innerHTML = String(html`
     ${u ? html`<a href="${userUrl(u.username)}" class="me ${path.startsWith(userUrl(u.username)) ? 'active' : ''}">${u.display_name}</a>`
@@ -176,11 +176,11 @@ onAction('follow', async el => {
 onAction('filter', (_el, e) => {
   const form = e.target.form;
   const params = Object.fromEntries(new FormData(form));
-  navigate(withQuery(location.pathname, params), { scroll: false });
+  navigate(withQuery(appPath(), params), { scroll: false });
 });
 
 onAction('load-more', async el => {
-  const museum = location.pathname.match(/^\/museum\/([^/]+)/)?.[1];
+  const museum = appPath().match(/^\/museum\/([^/]+)/)?.[1];
   el.disabled = true;
   const res = await api(withQuery('/artworks', { sort: 'popular', ...currentQuery(), museum, page: el.dataset.page }));
   const tmp = document.createElement('div');

@@ -12,9 +12,18 @@
     "dev": "node --disable-warning=ExperimentalWarning --watch server/index.js",
     "sync": "node --disable-warning=ExperimentalWarning scripts/sync.js",
     "seed:demo": "node --disable-warning=ExperimentalWarning scripts/seed-demo.js",
-    "test": "node --disable-warning=ExperimentalWarning --test test/*.test.js"
+    "test": "node --disable-warning=ExperimentalWarning --test test/*.test.js",
+    "build:static": "node --disable-warning=ExperimentalWarning scripts/build-static.js",
+    "preview:static": "npx --yes http-server@14 dist -p 4173 -c-1 --proxy http://localhost:4173?"
   },
   "dependencies": {
     "express": "^5.3.0"
-  }
+  },
+  "devDependencies": {
+    "@noble/hashes": "^1.8.0",
+    "@sqlite.org/sqlite-wasm": "^3.54.1-build1",
+    "buffer": "^6.0.3",
+    "esbuild": "^0.24.2"
+  },
+  "license": "MIT"
 }
